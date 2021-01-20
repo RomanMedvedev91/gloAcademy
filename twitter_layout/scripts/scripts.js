@@ -1,5 +1,30 @@
+class FetchData {
+  getResourse = async (url) => {
+    const res = await fetch(url);
+
+    if (!res.ok) {
+      throw new Error("error has been occured" + res.status);
+    }
+
+    return res.json();
+  };
+
+  getPost = () => {
+    return this.getResourse("db/database.json");
+  };
+}
+
+new FetchData().getPost().then((data) => {
+  console.log(data);
+});
+
+const obj = new FetchData();
+obj.getPost().then((data) => {
+  console.log(data);
+});
 class Twitter {
   constructor({ listElem }) {
+    const fetchData = new FetchData();
     this.tweets = new Posts();
     this.elements = {
       listElem: document.querySelector(listElem),
@@ -32,14 +57,14 @@ class Posts {
 }
 
 class Post {
-  constructor(param) {
-    this.id = param.id;
-    this.userName = param.userName;
-    this.nickName = param.nickName;
-    this.postDate = param.postDate;
-    this.text = param.text;
-    this.img = param.img;
-    this.likes = param.likes;
+  constructor({ id, userName, nickName, postDate, text, img, likes = 0 }) {
+    this.id = id || this.generateID();
+    this.userName = userName;
+    this.nickName = nickName;
+    this.postDate = postDate ? new Date(postDate) : new Date();
+    this.text = text;
+    this.img = img;
+    this.likes = likes;
     this.liked = false;
   }
 
@@ -51,6 +76,24 @@ class Post {
       this.likes--;
     }
   }
+
+  generateID() {
+    return (
+      Math.random().toString(32).substring(2, 9) + (+new Date()).toString(32)
+    );
+  }
+
+  getDate() {
+    const options = {
+      year: "numeric",
+      month: "numeric",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    };
+
+    return this.postDate.toLocaleString("ru-RU", options);
+  }
 }
 
 const twitter = new Twitter({
@@ -58,6 +101,11 @@ const twitter = new Twitter({
 });
 
 console.log(twitter);
+console.log(
+  Math.random().toString(32).substring(2, 9) + (+new Date()).toString(32)
+);
+
+console.log(new FetchData().getPost());
 // // document.addEventListener("DOMContentLoaded", function () {
 // //   const testlike = document.getElementById("test-like");
 
