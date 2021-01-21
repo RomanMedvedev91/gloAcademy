@@ -3,7 +3,7 @@ class FetchData {
     const res = await fetch(url);
 
     if (!res.ok) {
-      throw new Error("error has been occured" + res.status);
+      throw new Error("error has been occured " + res.status);
     }
 
     return res.json();
@@ -19,6 +19,7 @@ new FetchData().getPost().then((data) => {
 });
 
 const obj = new FetchData();
+
 obj.getPost().then((data) => {
   console.log(data);
 });
@@ -29,15 +30,29 @@ class Twitter {
     this.elements = {
       listElem: document.querySelector(listElem),
     };
+
+    fetchData.getPost().then((data) => {
+      data.forEach(this.tweets.addPost);
+      this.showAllPost();
+    });
+    console.log("this tweets: ", this.tweets);
   }
 
-  renderPosts() {}
+  renderPosts(tweets) {
+    this.elements.listElem.textContent = "";
+
+    tweets.forEach(({ id, userName, nickName, postDate, text, img, likes }) => {
+      this.elements.listElem.insertAdjacentHTML();
+    });
+  }
 
   showUserPost() {}
 
   showLikesPost() {}
 
-  showAllPost() {}
+  showAllPost() {
+    this.renderPosts(this.tweets.posts);
+  }
 
   openModal() {}
 }
@@ -47,9 +62,9 @@ class Posts {
     this.posts = posts;
   }
 
-  addPost(tweet) {
-    this.posts.push(new Post(tweet));
-  }
+  addPost = (tweets) => {
+    this.posts.push(tweets);
+  };
 
   deletePost(id) {}
 
