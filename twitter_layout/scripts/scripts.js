@@ -10,7 +10,7 @@ class FetchData {
   };
 
   getPost = () => {
-    return this.getResourse("db/database.json");
+    return this.getResourse("db/dataBase.json");
   };
 }
 
@@ -35,14 +35,55 @@ class Twitter {
       data.forEach(this.tweets.addPost);
       this.showAllPost();
     });
-    console.log("this tweets: ", this.tweets);
   }
 
-  renderPosts(tweets) {
+  renderPosts(posts) {
     this.elements.listElem.textContent = "";
 
-    tweets.forEach(({ id, userName, nickName, postDate, text, img, likes }) => {
-      this.elements.listElem.insertAdjacentHTML();
+    posts.forEach(({ id, userName, nickname, text, img, likes, getDate }) => {
+      this.elements.listElem.insertAdjacentHTML(
+        "beforeend",
+        `
+    <li>
+    <article class="tweet">
+      <div class="row">
+        <img
+          class="avatar"
+          src="images/${nickname}.jpg"
+          alt="Аватар пользователя ${nickname}"
+        />
+        <div class="tweet__wrapper">
+          <header class="tweet__header">
+            <h3 class="tweet-author">${userName}
+              <span class="tweet-author__add tweet-author__nickname"
+                >@${nickname}</span>
+              <time class="tweet-author__add tweet__date">${getDate()}</time>
+            </h3>
+            <button class="tweet__delete-button chest-icon" data-id="${id}"></button>
+          </header>
+          <div class="tweet-post">
+            <p class="tweet-post__text">${text}
+            </p>
+            ${
+              img
+                ? `<figure class="tweet-post__image">
+              <img
+                src="${img}"
+                alt="image ${nickname}"
+              />
+            </figure>`
+                : ""
+            }
+          </div>
+        </div>
+      </div>
+      <footer>
+        <button class="tweet__like" id="test-like">${likes}</button>
+      </footer>
+    </article>
+  </li>
+      `
+      );
     });
   }
 
@@ -63,7 +104,7 @@ class Posts {
   }
 
   addPost = (tweets) => {
-    this.posts.push(tweets);
+    this.posts.push(new Post(tweets));
   };
 
   deletePost(id) {}
@@ -72,10 +113,10 @@ class Posts {
 }
 
 class Post {
-  constructor({ id, userName, nickName, postDate, text, img, likes = 0 }) {
+  constructor({ id, userName, nickname, postDate, text, img, likes = 0 }) {
     this.id = id || this.generateID();
     this.userName = userName;
-    this.nickName = nickName;
+    this.nickname = nickname;
     this.postDate = postDate ? new Date(postDate) : new Date();
     this.text = text;
     this.img = img;
@@ -98,7 +139,7 @@ class Post {
     );
   }
 
-  getDate() {
+  getDate = () => {
     const options = {
       year: "numeric",
       month: "numeric",
@@ -108,19 +149,13 @@ class Post {
     };
 
     return this.postDate.toLocaleString("ru-RU", options);
-  }
+  };
 }
 
 const twitter = new Twitter({
   listElem: ".tweet-list",
 });
 
-console.log(twitter);
-console.log(
-  Math.random().toString(32).substring(2, 9) + (+new Date()).toString(32)
-);
-
-console.log(new FetchData().getPost());
 // // document.addEventListener("DOMContentLoaded", function () {
 // //   const testlike = document.getElementById("test-like");
 
