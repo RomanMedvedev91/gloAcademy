@@ -24,17 +24,19 @@ obj.getPost().then((data) => {
   console.log(data);
 });
 class Twitter {
-  constructor({ listElem }) {
+  constructor({ listElem, modalElems }) {
     const fetchData = new FetchData();
     this.tweets = new Posts();
     this.elements = {
       listElem: document.querySelector(listElem),
+      modal: modalElems,
     };
 
     fetchData.getPost().then((data) => {
       data.forEach(this.tweets.addPost);
       this.showAllPost();
     });
+    this.elements.modal.forEach(this.handlerModal, this);
   }
 
   renderPosts(posts) {
@@ -95,7 +97,24 @@ class Twitter {
     this.renderPosts(this.tweets.posts);
   }
 
-  openModal() {}
+  handlerModal({ button, modal, overlay, close }) {
+    const buttonElem = document.querySelector(button);
+    const modalElem = document.querySelector(modal);
+    const overlayElem = document.querySelector(overlay);
+    const closeElem = document.querySelector(close);
+    console.log(buttonElem, modalElem);
+
+    const openModel = () => {
+      modalElem.style.display = "block";
+    };
+    const closeModel = (event) => {
+      console.log(event);
+      modalElem.style.display = "none";
+    };
+    buttonElem.addEventListener("click", openModel);
+    closeElem.addEventListener("click", closeModel);
+    overlayElem.addEventListener("click", closeModel);
+  }
 }
 
 class Posts {
@@ -154,6 +173,14 @@ class Post {
 
 const twitter = new Twitter({
   listElem: ".tweet-list",
+  modalElems: [
+    {
+      button: ".header__link_tweet",
+      modal: ".modal",
+      overlay: ".overlay",
+      close: ".modal-close__btn",
+    },
+  ],
 });
 
 // // document.addEventListener("DOMContentLoaded", function () {
