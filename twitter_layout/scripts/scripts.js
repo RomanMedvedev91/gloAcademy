@@ -24,12 +24,14 @@ obj.getPost().then((data) => {
   console.log(data);
 });
 class Twitter {
-  constructor({ listElem, modalElems }) {
+  constructor({ user, listElem, modalElems, tweetElems }) {
     const fetchData = new FetchData();
+    this.user = user;
     this.tweets = new Posts();
     this.elements = {
       listElem: document.querySelector(listElem),
       modal: modalElems,
+      tweetElems,
     };
 
     fetchData.getPost().then((data) => {
@@ -37,6 +39,7 @@ class Twitter {
       this.showAllPost();
     });
     this.elements.modal.forEach(this.handlerModal, this);
+    this.elements.tweetElems.forEach(this.addTweet, this);
   }
 
   renderPosts(posts) {
@@ -102,18 +105,53 @@ class Twitter {
     const modalElem = document.querySelector(modal);
     const overlayElem = document.querySelector(overlay);
     const closeElem = document.querySelector(close);
-    console.log(buttonElem, modalElem);
 
     const openModel = () => {
       modalElem.style.display = "block";
     };
-    const closeModel = (event) => {
-      console.log(event);
-      modalElem.style.display = "none";
+    const closeModel = (elem, event) => {
+      const target = event.target;
+      if (target === elem) {
+        modalElem.style.display = "none";
+      }
     };
     buttonElem.addEventListener("click", openModel);
-    closeElem.addEventListener("click", closeModel);
-    overlayElem.addEventListener("click", closeModel);
+    if (closeElem) {
+      closeElem.addEventListener("click", closeModel.bind(null, closeElem));
+    }
+    if (overlay) {
+      overlayElem.addEventListener("click", closeModel.bind(null, overlayElem));
+    }
+
+    this.handlerModal.closeModel = () => {
+      modalElem.style.display = "none";
+    };
+  }
+
+  addTweet({ text, img, submit }) {
+    const textElem = document.querySelector(text);
+    const imgElem = document.querySelector(img);
+    const submitElem = document.querySelector(submit);
+    let imgUrl = "";
+    let tempString = textElem.innerHTML;
+    submitElem.addEventListener("click", () => {
+      this.tweets.addPost({
+        userName: this.user.name,
+        nickname: this.user.nick,
+        text: textElem.innerHTML,
+        img: imgUrl,
+      });
+      this.showAllPost();
+      this.handlerModal.closeModel();
+    });
+    textElem.addEventListener("click", () => {
+      if (textElem.innerHTML === tempString) {
+        textElem.innerHTML = "";
+      }
+    });
+    imgElem.addEventListener("click", () => {
+      imgUrl = prompt("write text");
+    });
   }
 }
 
@@ -123,7 +161,7 @@ class Posts {
   }
 
   addPost = (tweets) => {
-    this.posts.push(new Post(tweets));
+    this.posts.unshift(new Post(tweets));
   };
 
   deletePost(id) {}
@@ -173,12 +211,23 @@ class Post {
 
 const twitter = new Twitter({
   listElem: ".tweet-list",
+  user: {
+    name: "Max",
+    nick: "maximus",
+  },
   modalElems: [
     {
       button: ".header__link_tweet",
       modal: ".modal",
       overlay: ".overlay",
       close: ".modal-close__btn",
+    },
+  ],
+  tweetElems: [
+    {
+      text: ".modal .tweet-form__text",
+      img: ".modal .tweet-img__btn",
+      submit: ".modal .tweet-form__btn",
     },
   ],
 });
